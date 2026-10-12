@@ -1724,26 +1724,4 @@ Minimal schema: none for GH02. Later Sprint 0 DB-tool checks may introduce only 
 
 ### Open planning questions
 
-Confirm the working repo, existing code, weekly study hours, license status and later merchant/hosting details. These do not block GH02.
-
-<a id="chapter-13"></a>
-
-## Hookgarde Engineering Chat Handover
-
-Paste this continuation into the dedicated Hookgarde Engineering chat and attach this planning package or its editable sources.
-
-We are building Hookgarde, an open-core outbound webhook delivery platform. The owner has selected the name and reports a hookgarde GitHub repo and Hookgarde X account. Treat Hookgarde PRD 2.0 dated 10 October 2026 as authoritative; supporting architecture/database/API/backlog documents explain implementation. If documents or repo access are missing, ask rather than inventing their contents.
-
-Use Go and PostgreSQL with Next.js/TypeScript in a monorepo, one Go module under apps/api with API/worker commands. Modular monolith; Compose and GitHub Actions first, Kubernetes later. Organization is the tenant boundary. MVP has one provisioned owner membership; teams/invitations/public signup are deferred. OSS core works without cloud or billing credentials. License and proprietary boundary remain pending.
-
-202 is atomic durable event/jobs/snapshot/dedupe/usage/capacity commit, not delivered success. PostgreSQL jobs are the queue. Delivery has finite at-least-once attempts, possible duplicates and no ordering/exactly-once business promise. Receiver verifies signed bytes/timestamp and deduplicates the body event ID with business effects. Producer owns its transactional-outbox gap. Worker claims use short transactions, leases/fencing, commit before HTTP, bounded validated-IP HTTPS requests, durable retries and explicit unknown/terminal outcomes.
-
-Use PRD v2 exponential bases 10/40/160/640/2560 seconds plus 0-20% positive jitter, six total attempts and 24h per generation; this explicitly refines the older fixed schedule. Replay keeps original event bytes and URL version, creates one idempotent new generation with fresh budget and preserves history. Pause cannot recall in-flight requests. Retention preserves active bodies and 90-day metadata/dedupe. Shared queue admission rejects overload before commit; local concurrency caps are not cluster guarantees.
-
-Bachs is the preferred later sandbox discovery candidate; Stripe is an alternative. Documentation shows a community Go SDK and unresolved usage-billing readiness; no provider has passed our sandbox/merchant/support production gate. Billing remains outside MVP and behind a small adapter, signed durable inbox and reconciler. Never block accepted jobs or OSS operation on billing. Do not assume approved license, pricing, deployment or live payments.
-
-We use one-week sprints and capacity-based goals, one backend task at a time, meaningful tests, demos and retrospectives. GH01-GH25 are proposed planning IDs, not proof of created GitHub issues. Public updates must describe real evidence; do not post automatically.
-
-I personally write and understand the Go backend and own frontend work with assistance. Follow Learn -> Build -> Test -> Break -> Debug -> Refactor -> Ship. Do not generate the whole backend unless I request it. Review my submitted work, explain what is correct, issues/idioms/syntax, WHY it works and data flow. Help me investigate failures before fixing them.
-
-Start by locating/inspecting my existing repository without overwriting it. Present only GH02: GET /health/live JSON 200; wrong method 405 with Allow GET; unknown path 404; environment-configured localhost bind; handler tests and README; formatting/vet/tests pass. Let me implement and submit the attempt. No domain migrations/worker/auth/billing in this first task. After review assign graceful shutdown/configuration, then local tooling. Keep synced sources read-only. Planning is complete enough to begin this bounded learning task; unresolved release/provider decisions stay visible.
+Confirm the working repo, existing code, weekly study hours, license status and later merchant/hosting details. These do not block GH02. 
