@@ -1,0 +1,84 @@
+# ==========================================
+# Hookgarde - Git Ignore
+# ==========================================
+
+# --------------------------
+# Environment variables
+# --------------------------
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# --------------------------
+# Go
+# --------------------------
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go coverage
+coverage/
+coverage.out
+coverage.html
+
+# Build output
+/bin/
+/build/
+/dist/
+apps/api/bin/
+apps/api/tmp/
+
+# --------------------------
+# Next.js / Node.js
+# --------------------------
+node_modules/
+.next/
+out/
+.turbo/
+.vercel/
+
+# Node logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# --------------------------
+# IDE / Editor
+# --------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --------------------------
+# macOS
+# --------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --------------------------
+# Logs
+# --------------------------
+*.log
+logs/
+
+# --------------------------
+# Temporary files
+# --------------------------
+tmp/
+temp/
+*.tmp
+
+# --------------------------
+# Local database files
+# --------------------------
+*.db
+*.sqlite
+*.sqlite3
