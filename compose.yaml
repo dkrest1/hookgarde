@@ -1,0 +1,92 @@
+x-api-environment: &api-environment
+  DATABASE_URL: postgres://hookgarde:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/hookgarde?sslmode=disable
+  ENCRYPTION_KEY: ${ENCRYPTION_KEY:?Set ENCRYPTION_KEY in .env}
+  HTTP_ADDR: 0.0.0.0:8080
+  PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:3000}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  APP_ENV: ${APP_ENV:-production}
+  DEV_ENDPOINT_HOSTS: ${DEV_ENDPOINT_HOSTS:-}
+  LIMIT_PROJECTS: ${LIMIT_PROJECTS:-5}
+  LIMIT_ENDPOINTS: ${LIMIT_ENDPOINTS:-10}
+  LIMIT_TARGETS: ${LIMIT_TARGETS:-10}
+  LIMIT_MONTHLY_EVENTS: ${LIMIT_MONTHLY_EVENTS:-10000}
+  LIMIT_QUEUE_JOBS: ${LIMIT_QUEUE_JOBS:-100000}
+  LIMIT_ORGANIZATION_JOBS: ${LIMIT_ORGANIZATION_JOBS:-10000}
+  STORAGE_LIMIT_BYTES: ${STORAGE_LIMIT_BYTES:-10737418240}
+  STORAGE_RESERVE_BYTES: ${STORAGE_RESERVE_BYTES:-268435456}
+  RATE_INGEST_PER_MINUTE: ${RATE_INGEST_PER_MINUTE:-60}
+  RATE_MUTATIONS_PER_MINUTE: ${RATE_MUTATIONS_PER_MINUTE:-30}
+  RATE_LOGIN_PER_15_MINUTES: ${RATE_LOGIN_PER_15_MINUTES:-10}
+services:
+  db:
+    image: postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+    environment:
+      POSTGRES_USER: hookgarde
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: hookgarde
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U hookgarde -d hookgarde']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  migrate:
+    build: {context: ., dockerfile: deploy/docker/api.Dockerfile}
+    image: hookgarde-api:local
+    entrypoint: [/app/admin, migrate]
+    environment: *api-environment
+    depends_on: {db: {condition: service_healthy}}
+    profiles: [tools]
+  admin:
+    image: hookgarde-api:local
+    build: {context: ., dockerfile: deploy/docker/api.Dockerfile}
+    entrypoint: [/app/admin]
+    environment: *api-environment
+    depends_on: {db: {condition: service_healthy}}
+    profiles: [tools]
+  api:
+    image: hookgarde-api:local
+    build: {context: ., dockerfile: deploy/docker/api.Dockerfile}
+    environment: *api-environment
+    ports: ['127.0.0.1:8080:8080']
+    depends_on: {db: {condition: service_healthy}}
+    healthcheck:
+      test: [CMD, /app/api, probe]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    stop_grace_period: 20s
+    read_only: true
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+  worker:
+    image: hookgarde-api:local
+    build: {context: ., dockerfile: deploy/docker/api.Dockerfile}
+    entrypoint: [/app/worker]
+    environment: *api-environment
+    depends_on: {api: {condition: service_healthy}}
+    restart: unless-stopped
+    stop_grace_period: 25s
+    read_only: true
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+  web:
+    build: {context: ., dockerfile: deploy/docker/web.Dockerfile}
+    environment: {API_INTERNAL_URL: 'http://api:8080'}
+    ports: ['127.0.0.1:3000:3000']
+    depends_on: {api: {condition: service_healthy}}
+    restart: unless-stopped
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+  receiver:
+    image: hookgarde-api:local
+    build: {context: ., dockerfile: deploy/docker/api.Dockerfile}
+    entrypoint: [/app/admin, receiver]
+    profiles: [demo]
+    ports: ['127.0.0.1:8090:8090']
+    environment:
+      RECEIVER_STATUS: ${RECEIVER_STATUS:-204}
+volumes:
+  postgres_data:
