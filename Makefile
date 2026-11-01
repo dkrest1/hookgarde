@@ -1,0 +1,9 @@
+.PHONY: test check web-check build
+check:
+	cd apps/api && test -z "$$(gofmt -l .)" && go vet ./... && go test -race ./...
+test:
+	cd apps/api && go test ./...
+web-check:
+	cd apps/web && npm ci && npm run typecheck && npm test && npm run build
+build:
+	cd apps/api && go build ./cmd/...

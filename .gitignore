@@ -82,3 +82,9 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+# Test and generated tooling output
+**/test-results/
+**/playwright-report/
+*.tsbuildinfo
+artifacts/
+backups/

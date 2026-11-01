@@ -1,0 +1,88 @@
+name: Verify Hookgarde
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+        env:
+          POSTGRES_USER: hookgarde
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: hookgarde_test
+        ports: ['5432:5432']
+        options: --health-cmd 'pg_isready -U hookgarde -d hookgarde_test' --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://hookgarde:test-only-password@localhost:5432/hookgarde_test?sslmode=disable
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {persist-credentials: false}
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.27.3'
+          cache-dependency-path: apps/api/go.sum
+      - run: test -z "$(gofmt -l .)"
+      - run: go mod verify && go vet ./...
+      - run: go test -race -p 1 -count=1 -coverprofile=coverage.out ./...
+      - run: go build ./cmd/...
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.2.0 ./...
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: go-coverage, path: apps/api/coverage.out}
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24.22.2'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck && npm test && npm audit --audit-level=high
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with: {name: browser-traces, path: apps/web/test-results}
+  containers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {persist-credentials: false}
+      - name: Build and smoke-test self-hosted installation
+        run: |
+          python3 scripts/create-local-env.py
+          docker compose config --quiet
+          docker compose build
+          docker compose up -d db
+          docker compose run --rm migrate
+          docker compose up -d --wait api worker web
+          curl --fail http://localhost:8080/health/live
+          curl --fail http://localhost:8080/health/ready
+          curl --fail http://localhost:3000/ > /dev/null
+          docker compose exec -T db pg_dump -U hookgarde -d hookgarde -Fc > /tmp/hookgarde-backup.dump
+          docker compose exec -T db createdb -U hookgarde restore_check
+          docker compose exec -T db pg_restore -U hookgarde -d restore_check --exit-on-error < /tmp/hookgarde-backup.dump
+          test "$(docker compose exec -T db psql -U hookgarde -d restore_check -Atc 'SELECT max(version) FROM schema_migrations')" = 1
+      - name: Stop disposable installation
+        if: always()
+        run: docker compose down -v
