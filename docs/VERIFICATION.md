@@ -4,6 +4,12 @@ Implementation date: 1 November 2026. Baseline repository main was
 `70f094b4262e9abf9ca1a109b2b68ef4a01cb9c5`. Changes are in the local checkout;
 no GitHub publication or deployment is implied by this record.
 
+## Latest runtime review
+
+See [PRD_REVIEW.md](PRD_REVIEW.md) for the subsequent native PostgreSQL, real browser,
+Docker cold-start and backup/restore smoke results. Those checks were unverified
+at the initial build; the historical record below describes that earlier state.
+
 ## Implemented scope
 
 - Go net/http API with strict GET liveness, DB/schema readiness, configurable bind,

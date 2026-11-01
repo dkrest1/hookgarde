@@ -228,6 +228,8 @@ test("login errors remain visible and tokens are not stored in local storage", a
   await page.getByLabel("Email address").fill("owner@example.com");
   await page.getByLabel("Password", { exact: true }).fill("incorrect-password");
   await page.getByRole("button", { name: "Sign in to Hookgarde" }).click();
-  await expect(page.getByRole("alert")).toHaveText("Invalid email or password");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Invalid email or password" }),
+  ).toHaveText("Invalid email or password");
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
 });
