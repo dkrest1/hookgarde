@@ -9,5 +9,9 @@ Never commit credentials, event bodies from real users or full receiver response
 Do not silently change signature bytes, retry budgets, acceptance guarantees,
 replay URL snapshots or tenant boundaries. Update the contract and ADR first.
 
-The owner has not chosen a license. Contact the repository owner before proposing
-external redistribution; this document does not grant a license.
+## License
+
+Unless explicitly stated otherwise, contributions intentionally submitted for
+inclusion in Hookgarde are offered under the Apache License 2.0, as described in
+section 5 of [LICENSE](LICENSE). Preserve applicable copyright and third-party
+license notices. See [NOTICE](NOTICE) for the project copyright notice.

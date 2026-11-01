@@ -93,8 +93,9 @@ needs filesystem monitoring/alerts and an enforced operational reserve.
 The global capacity lock serializes queue mutations. It is an explicit simplicity
 tradeoff, not demonstrated scalability. Benchmark before changing the architecture.
 
-License, proprietary boundary, external-launch terms, support ownership and hosting
-budget remain owner decisions. Public registration/recovery, billing, teams,
+Apache-2.0 was subsequently approved for the current core; see
+[ADR 017](adr/017-apache-2-license.md). The future proprietary boundary,
+external-launch terms, support ownership and hosting budget remain owner decisions. Public registration/recovery, billing, teams,
 Kubernetes, Redis/brokers, strict ordering and exactly-once delivery are deliberately
 outside this MVP, not requirements to bolt onto the running local instance.
 
