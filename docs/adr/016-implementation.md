@@ -68,7 +68,8 @@ require a later operational validation milestone; no such evidence is claimed he
 
 ## Release gate
 
-Owner chooses license/commercial boundary. Native PostgreSQL concurrency tests,
+The owner selected Apache-2.0 for the current core; see [ADR 017](017-apache-2-license.md).
+The future proprietary feature boundary remains undecided. Native PostgreSQL concurrency tests,
 real browser checks, Compose cold start, restore drill, security review and
 recorded load measurement must pass before calling this release production-ready.
 See `docs/VERIFICATION.md`; configured CI is not a completed remote run.

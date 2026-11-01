@@ -10,8 +10,17 @@ monitoring and infrastructure.
 
 This is an **alpha implementation for review and learning**, not a production
 readiness certification. See [verification status](docs/VERIFICATION.md) for the
-checks actually run and outstanding environment-dependent validation. The owner
-has not selected an OSS license or commercial code boundary. No license is inferred.
+checks actually run and outstanding environment-dependent validation.
+
+## License
+
+Hookgarde is licensed under the [Apache License 2.0](LICENSE).
+Copyright 2026 Oluwatosin Temitope Akande. See [NOTICE](NOTICE) for attribution.
+Third-party dependencies retain their respective licenses.
+
+The current repository is the Apache-licensed self-hosted core. A future proprietary
+feature boundary remains undecided; no additional commercial restrictions apply
+to this code. See [the licensing decision](docs/adr/017-apache-2-license.md).
 
 ## Start locally with Docker Compose
 

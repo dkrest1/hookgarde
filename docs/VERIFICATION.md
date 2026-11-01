@@ -73,7 +73,8 @@ build, OpenAPI validation/response checks, and Compose configuration parsing.
 - Complete a real backup/restore drill with the separately backed-up encryption key.
 - Measure the PRD load/latency targets on a recorded host; no benchmark or SLA claimed.
 - Review SSRF/tenant/redaction controls independently and configure egress defenses.
-- Resolve license, commercial boundary, support, hosting and external-launch policies.
+- Apache-2.0 has been selected for the core; see [ADR 017](adr/017-apache-2-license.md).
+  Resolve the future commercial boundary, support, hosting and external-launch policies.
 - Add a reviewed encryption-master-key re-encryption procedure before rotating it.
 
 Full distributed tracing, public signup/recovery, teams, billing, Kubernetes and
