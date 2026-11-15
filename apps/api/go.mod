@@ -5,7 +5,7 @@ go 1.27.3
 require (
 	github.com/getkin/kin-openapi v0.152.0
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.12.0
+	github.com/jackc/pgx/v5 v5.13.0
 	golang.org/x/crypto v0.58.0
 )
 
